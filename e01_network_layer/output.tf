@@ -1,7 +1,3 @@
-output "customer_gateway" {
-  value = "${aws_vpn_connection.nomad.customer_gateway_configuration}"
-}
-
 output "gcp_network" {
   value = "${google_compute_network.nomad.name}"
 }

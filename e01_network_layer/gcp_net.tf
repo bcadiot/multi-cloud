@@ -106,7 +106,7 @@ resource "google_compute_router_peer" "nomad-1" {
   name                      = "peer-1"
   router                    = "${google_compute_router.nomad.name}"
   peer_ip_address           = "${aws_vpn_connection.nomad.tunnel1_vgw_inside_address}"
-  peer_asn                  = "${var.bgp_aws}"
+  peer_asn                  = "${aws_vpn_connection.nomad.tunnel1_bgp_asn}"
   advertised_route_priority = 100
   interface                 = "${google_compute_router_interface.nomad-1.name}"
 }
@@ -115,7 +115,7 @@ resource "google_compute_router_peer" "nomad-2" {
   name                      = "peer-2"
   router                    = "${google_compute_router.nomad.name}"
   peer_ip_address           = "${aws_vpn_connection.nomad.tunnel2_vgw_inside_address}"
-  peer_asn                  = "${var.bgp_aws}"
+  peer_asn                  = "${aws_vpn_connection.nomad.tunnel2_bgp_asn}"
   advertised_route_priority = 100
   interface                 = "${google_compute_router_interface.nomad-2.name}"
 }

@@ -6,8 +6,10 @@ resource "google_compute_instance" "bastion" {
   zone         = "${var.region_gcp}-${element(var.az_gcp, count.index)}"
   can_ip_forward = true
 
-  disk {
-    image = "${var.gcp_image}"
+  boot_disk {
+    initialize_params {
+      image = "${var.gcp_image}"
+    }
   }
 
   scheduling {

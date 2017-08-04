@@ -52,7 +52,3 @@ variable "gcp_image" {
 variable "bgp_gcp" {
   default = "65273"
 }
-
-variable "bgp_aws" {
-  default = "7224"
-}
