@@ -5,6 +5,8 @@ resource "aws_instance" "traefik" {
   instance_type = "${var.aws_instance_type}"
   ami = "${var.aws_image}"
   key_name = "${var.keypair}"
+  // iam_instance_profile = "${aws_iam_instance_profile.consul.id}"
+  iam_instance_profile = "ec2_describe_instances"
 
   vpc_security_group_ids = ["${aws_security_group.traefik.id}", "${aws_security_group.traefik_adm.id}", , "${aws_security_group.consul_clients.id}"]
   subnet_id = "${element(data.terraform_remote_state.network.aws_pub_subnet, count.index + 1)}"

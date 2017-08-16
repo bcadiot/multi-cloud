@@ -4,6 +4,7 @@ resource "aws_instance" "consul" {
   ami = "${var.aws_image}"
   key_name = "${var.keypair}"
   // iam_instance_profile = "${aws_iam_instance_profile.consul.id}"
+  iam_instance_profile = "ec2_describe_instances"
 
   vpc_security_group_ids = ["${aws_security_group.consul_servers.id}"]
   subnet_id = "${element(data.terraform_remote_state.network.aws_priv_subnet, count.index)}"
