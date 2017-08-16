@@ -33,6 +33,24 @@ resource "google_compute_firewall" "consul-servers" {
   target_tags   = ["consul-servers"]
 }
 
+resource "google_compute_firewall" "consul-clients" {
+  name    = "consul-clients"
+  network = "${data.terraform_remote_state.network.gcp_network}"
+
+  allow {
+    protocol = "tcp"
+    ports    = ["8300-8301", "8500"]
+  }
+
+  allow {
+    protocol = "udp"
+    ports    = ["8301"]
+  }
+
+  source_tags   = ["consul-servers"]
+  target_tags   = ["consul-clients"]
+}
+
 resource "google_compute_firewall" "traefik" {
   name    = "traefik"
   network = "${data.terraform_remote_state.network.gcp_network}"
