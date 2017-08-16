@@ -2,16 +2,28 @@ output "gcp_network" {
   value = "${google_compute_network.nomad.name}"
 }
 
-output "gcp_subnetwork" {
-  value = "${google_compute_subnetwork.default-nomad.name}"
+output "gcp_pub_subnet" {
+  value = "${google_compute_subnetwork.pub.name}"
+}
+
+output "gcp_priv_subnet" {
+  value = "${google_compute_subnetwork.priv.name}"
 }
 
 output "aws_vpc" {
   value = "${aws_vpc.nomad.id}"
 }
 
-output "aws_subnet" {
-  value = "${aws_subnet.nomad.*.id}"
+output "aws_pub_subnet" {
+  value = "${aws_subnet.pub.*.id}"
+}
+
+output "aws_priv_subnet" {
+  value = "${aws_subnet.priv.*.id}"
+}
+
+output "aws_ngw" {
+  value = "${aws_nat_gateway.gw.id}"
 }
 
 output "aws_igw" {

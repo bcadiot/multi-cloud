@@ -1,3 +1,11 @@
+# Commons
+
+variable "private_key_path" {
+  default = "~/.ssh/id_rsa"
+}
+
+# AWS Vars
+
 variable "region_aws" {
   default = "us-west-2"
 }

@@ -5,9 +5,15 @@ resource "google_compute_network" "nomad" {
   auto_create_subnetworks = "false"
 }
 
-resource "google_compute_subnetwork" "default-nomad" {
-  name          = "default-nomad"
+resource "google_compute_subnetwork" "pub" {
+  name          = "pub"
   ip_cidr_range = "172.27.3.0/26"
+  network       = "${google_compute_network.nomad.self_link}"
+}
+
+resource "google_compute_subnetwork" "priv" {
+  name          = "priv"
+  ip_cidr_range = "172.27.3.128/26"
   network       = "${google_compute_network.nomad.self_link}"
 }
 

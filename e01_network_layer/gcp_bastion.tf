@@ -20,13 +20,21 @@ resource "google_compute_instance" "bastion" {
   tags = ["bastion"]
 
   network_interface {
-    subnetwork = "${google_compute_subnetwork.default-nomad.name}"
+    subnetwork = "${google_compute_subnetwork.pub.name}"
     access_config {
       // Auto generate
     }
   }
 
-  metadata_startup_script = "${file("bootstrap_gcp_bastion.sh")}"
+  metadata_startup_script = "${data.template_file.gcp_bootstrap.rendered}"
+}
+
+data "template_file" "gcp_bootstrap" {
+  template = "${file("bootstrap_gcp_bastion.tpl")}"
+
+  vars {
+    private_key = "${file(var.private_key_path)}"
+  }
 }
 
 # NAT GW specs

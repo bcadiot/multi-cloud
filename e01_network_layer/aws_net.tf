@@ -4,10 +4,18 @@ resource "aws_vpc" "nomad" {
   cidr_block = "172.30.3.0/24"
 }
 
-resource "aws_subnet" "nomad" {
+resource "aws_subnet" "pub" {
   count = 3
 
-  cidr_block        = "${cidrsubnet(aws_vpc.nomad.cidr_block, 2, count.index)}"
+  cidr_block        = "${cidrsubnet(aws_vpc.nomad.cidr_block, 3, count.index)}"
+  availability_zone = "${var.region_aws}${element(var.az_aws, count.index)}"
+  vpc_id            = "${aws_vpc.nomad.id}"
+}
+
+resource "aws_subnet" "priv" {
+  count = 3
+
+  cidr_block        = "${cidrsubnet(aws_vpc.nomad.cidr_block, 3, count.index + 4)}"
   availability_zone = "${var.region_aws}${element(var.az_aws, count.index)}"
   vpc_id            = "${aws_vpc.nomad.id}"
 }
@@ -46,6 +54,24 @@ resource "aws_route_table" "pub" {
 resource "aws_route_table_association" "pub" {
   count = 3
 
-  subnet_id      = "${element(aws_subnet.nomad.*.id, count.index)}"
+  subnet_id      = "${element(aws_subnet.pub.*.id, count.index)}"
   route_table_id = "${aws_route_table.pub.id}"
+}
+
+resource "aws_route_table" "priv" {
+  vpc_id = "${aws_vpc.nomad.id}"
+
+  propagating_vgws = ["${aws_vpn_gateway.vpn_gateway.id}"]
+
+  route {
+    cidr_block = "0.0.0.0/0"
+    nat_gateway_id = "${aws_nat_gateway.gw.id}"
+  }
+}
+
+resource "aws_route_table_association" "priv" {
+  count = 3
+
+  subnet_id      = "${element(aws_subnet.priv.*.id, count.index)}"
+  route_table_id = "${aws_route_table.priv.id}"
 }
