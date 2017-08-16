@@ -32,3 +32,29 @@ resource "google_compute_firewall" "consul-servers" {
   source_ranges = ["0.0.0.0/0"]
   target_tags   = ["consul-servers"]
 }
+
+resource "google_compute_firewall" "traefik" {
+  name    = "traefik"
+  network = "${data.terraform_remote_state.network.gcp_network}"
+
+  allow {
+    protocol = "tcp"
+    ports    = ["80", "443"]
+  }
+
+  source_ranges = ["0.0.0.0/0"]
+  target_tags   = ["traefik"]
+}
+
+resource "google_compute_firewall" "traefik-adm" {
+  name    = "traefik-adm"
+  network = "${data.terraform_remote_state.network.gcp_network}"
+
+  allow {
+    protocol = "tcp"
+    ports    = ["8080"]
+  }
+
+  source_tags = ["bastion"]
+  target_tags   = ["traefik"]
+}

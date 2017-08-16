@@ -25,11 +25,12 @@ case "$${lsb_dist}" in
 esac
 
 # Extended Params
-ZONE=$(curl http://169.254.169.254/latest/meta-data/placement/availability-zone)
-CONSUL_VERSION="0.9.2"
-REGION=$(echo $${ZONE} | cut -d"-" -f1)
-DATACENTER=$(echo $${ZONE} | sed 's/.$//')
-OUTPUT_IP=$(curl http://169.254.169.254/latest/meta-data/local-ipv4)
+ZONE=${zone}
+CONSUL_VERSION=${consul_version}
+TRAEFIK_VERSION=${traefik_version}
+DATACENTER=${datacenter}
+OUTPUT_IP=${output_ip}
+DOMAIN=${domain}
 
 start_services()
 {
@@ -45,13 +46,15 @@ start_services()
 	echo "OK : system services enabled and started"
 }
 
-start_consul()
+start_app()
 {
 	if [ -d /run/systemd/system ] ; then
 		echo "Enable and start services"
 		systemctl daemon-reload || true
 		systemctl enable consul || true
 		systemctl start consul || true
+		systemctl enable traefik || true
+		systemctl start traefik || true
 	fi
 
 	echo "OK : services enabled and started"
@@ -64,6 +67,8 @@ stop_all()
 		systemctl daemon-reload || true
 		systemctl disable dnsmasq || true
 		systemctl stop dnsmasq || true
+		systemctl disable traefik || true
+		systemctl stop traefik || true
 		systemctl disable consul || true
 		systemctl stop consul || true
 	fi
@@ -122,20 +127,69 @@ configure_consul()
 {
     cat > /etc/consul/config.json <<EOF
 {
-    "bootstrap_expect": 3,
-    "server": true,
+    "server": false,
     "datacenter": "$${DATACENTER}",
     "data_dir": "/var/consul",
     "log_level": "INFO",
     "enable_syslog": true,
-		"retry_join": ["provider=aws tag_key=${tag_key} tag_value=${tag_value}"],
-		"retry_join_wan": [${join_wan}],
-		"bind_addr": "$${OUTPUT_IP}",
-		"client_addr": "0.0.0.0"
+		${join},
+		"bind_addr": "$${OUTPUT_IP}"
 }
 EOF
 
 	echo "OK : Consul configured"
+}
+
+install_traefik()
+{
+	wget -qP /usr/bin https://github.com/containous/traefik/releases/download/v$${TRAEFIK_VERSION}/traefik_linux-amd64 && mv /usr/bin/traefik_linux-amd64 /usr/bin/traefik && chmod +x /usr/bin/traefik
+
+	mkdir -p /etc/traefik /var/traefik
+
+	cat > /etc/systemd/system/traefik.service <<EOF
+[Unit]
+Description=Traefik Agent
+Wants=basic.target
+After=basic.target network.target consul.service docker.service
+
+[Service]
+User=root
+Group=root
+EnvironmentFile=-/etc/sysconfig/traefik
+ExecStart=/usr/bin/traefik --configFile=/etc/traefik/traefik.toml
+ExecReload=/bin/kill -HUP $MAINPID
+KillMode=process
+Restart=on-failure
+RestartSec=42s
+
+[Install]
+WantedBy=multi-user.target
+EOF
+
+	echo "OK : traefik installed"
+}
+
+configure_traefik()
+{
+	cat > /etc/traefik/traefik.toml <<EOF
+	defaultEntryPoints = ["http"]
+
+	[entryPoints]
+	  [entryPoints.http]
+	  address = ":80"
+
+	[web]
+	  address = ":8080"
+
+	[consulCatalog]
+	  endpoint = "127.0.0.1:8500"
+	  watch = true
+	  domain = "$${DOMAIN}"
+	  prefix = "traefik"
+		constraints = ["tag==exposed"]
+EOF
+
+	echo "OK : Traefik configured"
 }
 
 clean_install()
@@ -144,7 +198,9 @@ clean_install()
 	rm -f /usr/bin/consul
 	rm -f /etc/consul/
 	rm -f /etc/systemd/system/consul.service
-	rm -f /etc/yum.repos.d/docker.repo
+	rm -f /usr/bin/traefik
+	rm -f /etc/traefik/traefik.toml
+	rm -f /etc/systemd/system/traefik.service
 
 	echo "OK : Clean install"
 }
@@ -158,7 +214,10 @@ do_install()
 
 	install_consul
 	configure_consul
-	start_consul
+	install_traefik
+	configure_traefik
+
+	start_app
 
 	cat <<EOF
 ************************************

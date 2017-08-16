@@ -9,21 +9,24 @@ resource "aws_instance" "consul" {
   subnet_id = "${element(data.terraform_remote_state.network.aws_priv_subnet, count.index)}"
   associate_public_ip_address = false
 
-  user_data = "${data.template_file.aws_bootstrap.rendered}"
+  user_data = "${data.template_file.aws_bootstrap_consul.rendered}"
 
   tags {
-    Name = "server-aws-nomad-${count.index + 1}"
+    Name = "server-aws-consul-${count.index + 1}"
+    Consul = "server"
   }
 
   depends_on = ["google_compute_instance.consul"]
 }
 
-data "template_file" "aws_bootstrap" {
-  template = "${file("aws_bootstrap.tpl")}"
+data "template_file" "aws_bootstrap_consul" {
+  template = "${file("bootstrap_consul.tpl")}"
 
   vars {
-    tag_key = "consul"
-    tag_value = "server"
-    join_wan = "${join(", ", formatlist("\"%s\"", google_compute_instance.consul.*.network_interface.0.address))}"
+    zone = "$(curl http://169.254.169.254/latest/meta-data/placement/availability-zone)"
+    datacenter = "$(echo $${ZONE} | sed 's/.$//')"
+    output_ip = "$(curl http://169.254.169.254/latest/meta-data/local-ipv4)"
+    consul_version = "0.9.2"
+    join = "\"retry_join\": [\"provider=aws tag_key=Consul tag_value=server\"], \"retry_join_wan\": [${join(", ", formatlist("\"%s\"", google_compute_instance.consul.*.network_interface.0.address))}]"
   }
 }

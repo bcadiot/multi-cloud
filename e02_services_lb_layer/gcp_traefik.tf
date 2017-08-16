@@ -1,8 +1,10 @@
-resource "google_compute_instance" "consul" {
-  count        = 3
-  name         = "server-gcp-consul-${count.index + 1}"
+# Local LB
+
+resource "google_compute_instance" "traefik" {
+  count        = 2
+  name         = "server-gcp-traefik-${count.index + 1}"
   machine_type = "${var.gcp_instance_type}"
-  zone         = "${var.gcp_region}-${element(var.az_gcp, count.index)}"
+  zone         = "${var.gcp_region}-${element(var.az_gcp, count.index + 1)}"
 
   boot_disk {
     initialize_params {
@@ -15,10 +17,13 @@ resource "google_compute_instance" "consul" {
     on_host_maintenance = "MIGRATE"
   }
 
-  tags = ["consul-servers"]
+  tags = ["traefik"]
 
   network_interface {
-    subnetwork = "${data.terraform_remote_state.network.gcp_priv_subnet}"
+    subnetwork = "${data.terraform_remote_state.network.gcp_pub_subnet}"
+    access_config {
+      // Auto generate
+    }
   }
 
   service_account {
@@ -27,11 +32,11 @@ resource "google_compute_instance" "consul" {
       ]
   }
 
-  metadata_startup_script = "${data.template_file.gcp_bootstrap_consul.rendered}"
+  metadata_startup_script = "${data.template_file.gcp_traefik_bootstrap.rendered}"
 }
 
-data "template_file" "gcp_bootstrap_consul" {
-  template = "${file("bootstrap_consul.tpl")}"
+data "template_file" "gcp_traefik_bootstrap" {
+  template = "${file("bootstrap_traefik.tpl")}"
 
   vars {
     domain = "${var.domain}"
@@ -39,6 +44,7 @@ data "template_file" "gcp_bootstrap_consul" {
     datacenter = "$(echo $${ZONE} | cut -d\"-\" -f1)-$(echo $${ZONE} | cut -d\"-\" -f2)"
     output_ip = "$(curl http://metadata.google.internal/computeMetadata/v1/instance/network-interfaces/0/ip -H \"Metadata-Flavor: Google\")"
     consul_version = "0.9.2"
+    traefik_version = "1.3.2"
     join = "\"retry_join\": [\"provider=gce tag_value=consul-servers\"]"
   }
 }

@@ -1,3 +1,8 @@
+# Commons
+
+variable "domain" {
+}
+
 # AWS Vars
 
 variable "aws_user" {

@@ -52,6 +52,116 @@ resource "aws_security_group" "consul_servers" {
   }
 }
 
+resource "aws_security_group" "consul_clients" {
+  vpc_id      = "${data.terraform_remote_state.network.aws_vpc}"
+  name        = "consul_clients_sg"
+
+  # ICMP
+  ingress {
+    protocol  = "icmp"
+    from_port = 8
+    to_port   = 0
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  # Consul RPC + Serf
+  ingress {
+    protocol  = "tcp"
+    from_port = 8300
+    to_port   = 8301
+    security_groups = ["${aws_security_group.consul_servers.id}"]
+    self = true
+  }
+
+  # Consul RPC + Serf (UDP)
+  ingress {
+    protocol  = "udp"
+    from_port = 8301
+    to_port   = 8301
+    security_groups = ["${aws_security_group.consul_servers.id}"]
+    self = true
+  }
+
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+}
+
+resource "aws_security_group" "traefik" {
+  vpc_id      = "${data.terraform_remote_state.network.aws_vpc}"
+  name        = "traefik_sg"
+
+  # ICMP
+  ingress {
+    protocol  = "icmp"
+    from_port = 8
+    to_port   = 0
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  # HTTP
+  ingress {
+    protocol  = "tcp"
+    from_port = 80
+    to_port   = 80
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  # HTTPS
+  ingress {
+    protocol  = "tcp"
+    from_port = 443
+    to_port   = 443
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+}
+
+resource "aws_security_group" "traefik_adm" {
+  vpc_id      = "${data.terraform_remote_state.network.aws_vpc}"
+  name        = "traefik_adm_sg"
+
+  # ICMP
+  ingress {
+    protocol  = "icmp"
+    from_port = 8
+    to_port   = 0
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  # HTTP ADM
+  ingress {
+    protocol  = "tcp"
+    from_port = 8080
+    to_port   = 8080
+    security_groups = ["${data.terraform_remote_state.network.aws_bastion_sg}"]
+  }
+
+  # SSH Bastion
+  ingress {
+    protocol  = "tcp"
+    from_port = 22
+    to_port   = 22
+    security_groups = ["${data.terraform_remote_state.network.aws_bastion_sg}"]
+  }
+
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+}
+
 // # IAM Configuration
 
 // resource "aws_iam_instance_profile" "consul" {

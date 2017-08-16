@@ -25,10 +25,10 @@ case "$${lsb_dist}" in
 esac
 
 # Extended Params
-ZONE=$(curl http://metadata.google.internal/computeMetadata/v1/instance/zone -H "Metadata-Flavor: Google" | cut -d"/" -f4)
-CONSUL_VERSION="0.9.2"
-DATACENTER=$(echo $${ZONE} | cut -d"-" -f1)-$(echo $${ZONE} | cut -d"-" -f2)
-OUTPUT_IP=$(curl http://metadata.google.internal/computeMetadata/v1/instance/network-interfaces/0/ip -H "Metadata-Flavor: Google")
+ZONE=${zone}
+CONSUL_VERSION=${consul_version}
+DATACENTER=${datacenter}
+OUTPUT_IP=${output_ip}
 
 start_services()
 {
@@ -127,7 +127,7 @@ configure_consul()
     "data_dir": "/var/consul",
     "log_level": "INFO",
     "enable_syslog": true,
-		"retry_join": ["provider=gce tag_value=${tag}"],
+		${join},
 		"bind_addr": "$${OUTPUT_IP}",
 		"client_addr": "0.0.0.0"
 }
