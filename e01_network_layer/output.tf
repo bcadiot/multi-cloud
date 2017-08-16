@@ -30,6 +30,10 @@ output "aws_igw" {
   value = "${aws_internet_gateway.gw.id}"
 }
 
+output "aws_bastion_sg" {
+  value = "${aws_security_group.bastion.id}"
+}
+
 output "gcp_bastion_ip" {
   value = [
       "${google_compute_instance.bastion.network_interface.0.access_config.0.assigned_nat_ip}",
