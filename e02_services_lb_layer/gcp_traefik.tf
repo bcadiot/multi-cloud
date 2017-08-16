@@ -17,7 +17,7 @@ resource "google_compute_instance" "traefik" {
     on_host_maintenance = "MIGRATE"
   }
 
-  tags = ["traefik", "consul-clients"]
+  tags = ["traefik", "consul-traefik"]
 
   network_interface {
     subnetwork = "${data.terraform_remote_state.network.gcp_pub_subnet}"

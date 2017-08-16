@@ -33,8 +33,8 @@ resource "google_compute_firewall" "consul-servers" {
   target_tags   = ["consul-servers"]
 }
 
-resource "google_compute_firewall" "consul-clients" {
-  name    = "consul-clients"
+resource "google_compute_firewall" "consul-traefik" {
+  name    = "consul-traefik"
   network = "${data.terraform_remote_state.network.gcp_network}"
 
   allow {
@@ -48,7 +48,7 @@ resource "google_compute_firewall" "consul-clients" {
   }
 
   source_tags   = ["consul-servers"]
-  target_tags   = ["consul-clients"]
+  target_tags   = ["consul-traefik"]
 }
 
 resource "google_compute_firewall" "traefik" {

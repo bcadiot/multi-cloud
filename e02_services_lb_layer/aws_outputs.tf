@@ -3,5 +3,8 @@ output "aws_consul_ips" {
 }
 
 output "aws_traefik_ips" {
-  value = ["${aws_instance.traefik.*.public_ip}"]
+  value = [
+      "${aws_instance.traefik.*.public_ip}",
+      "${aws_instance.traefik.*.private_ip}"
+    ]
 }
