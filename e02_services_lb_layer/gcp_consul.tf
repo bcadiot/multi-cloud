@@ -18,7 +18,7 @@ resource "google_compute_instance" "consul" {
   tags = ["consul-servers"]
 
   network_interface {
-    subnetwork = "${data.terraform_remote_state.network.gcp_subnetwork}"
+    subnetwork = "${data.terraform_remote_state.network.gcp_priv_subnet}"
   }
 
   service_account {
