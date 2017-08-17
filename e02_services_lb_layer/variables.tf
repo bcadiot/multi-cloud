@@ -1,6 +1,11 @@
 # Commons
 
 variable "domain" {
+  default = "exemple.com"
+}
+
+variable "test" {
+  default = false
 }
 
 # AWS Vars
