@@ -47,7 +47,7 @@ resource "google_compute_firewall" "consul-clients" {
     ports    = ["8301"]
   }
 
-  source_tags   = ["consul-servers"]
+  source_tags   = ["consul-servers", "consul-clients", "consul-traefik"]
   target_tags   = ["consul-clients"]
 }
 
@@ -65,7 +65,7 @@ resource "google_compute_firewall" "consul-traefik" {
     ports    = ["8301"]
   }
 
-  source_tags   = ["consul-servers"]
+  source_tags   = ["consul-servers", "consul-clients", "consul-traefik"]
   target_tags   = ["consul-traefik"]
 }
 
