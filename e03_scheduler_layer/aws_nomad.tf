@@ -22,9 +22,10 @@ data "template_file" "aws_bootstrap_nomad_servers" {
 
   vars {
     zone = "$(curl http://169.254.169.254/latest/meta-data/placement/availability-zone)"
+    region = "$(echo $${ZONE} | cut -d\"-\" -f1)"
     datacenter = "$(echo $${ZONE} | sed 's/.$//')"
     output_ip = "$(curl http://169.254.169.254/latest/meta-data/local-ipv4)"
-    nomad_version = "0.6.0"
+    nomad_version = "0.6.2"
     consul_version = "0.9.2"
     node_type = "server"
     join = "\"retry_join\": [\"provider=aws tag_key=Consul tag_value=server\"]"
@@ -42,7 +43,7 @@ resource "aws_instance" "nomad_clients" {
   subnet_id = "${element(data.terraform_remote_state.network.aws_priv_subnet, count.index)}"
   associate_public_ip_address = false
 
-  user_data = "${data.template_file.aws_bootstrap_nomad_servers.rendered}"
+  user_data = "${data.template_file.aws_bootstrap_nomad_clients.rendered}"
 
   tags {
     Name = "server-aws-nomad-client-${count.index + 1}"
@@ -57,9 +58,10 @@ data "template_file" "aws_bootstrap_nomad_clients" {
 
   vars {
     zone = "$(curl http://169.254.169.254/latest/meta-data/placement/availability-zone)"
+    region = "$(echo $${ZONE} | cut -d\"-\" -f1)"
     datacenter = "$(echo $${ZONE} | sed 's/.$//')"
     output_ip = "$(curl http://169.254.169.254/latest/meta-data/local-ipv4)"
-    nomad_version = "0.6.0"
+    nomad_version = "0.6.2"
     consul_version = "0.9.2"
     node_type = "client"
     join = "\"retry_join\": [\"provider=aws tag_key=Consul tag_value=server\"]"

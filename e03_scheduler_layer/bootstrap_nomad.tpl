@@ -26,6 +26,7 @@ esac
 
 # Extended Params
 ZONE=${zone}
+REGION=${region}
 CONSUL_VERSION=${consul_version}
 NOMAD_VERSION=${nomad_version}
 DATACENTER=${datacenter}
