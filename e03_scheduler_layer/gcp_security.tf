@@ -43,6 +43,6 @@ resource "google_compute_firewall" "nomad-apps" {
     ports    = ["20000-60000"]
   }
 
-  source_tags   = ["traefik"]
+  source_tags   = ["traefik", "nomad-clients"]
   target_tags   = ["nomad-clients"]
 }

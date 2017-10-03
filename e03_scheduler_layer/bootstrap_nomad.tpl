@@ -12,6 +12,7 @@ fi
 # Check dist
 
 lsb_dist="$(. /etc/os-release && echo "$ID")"
+lsb_version="$(. /etc/os-release && echo "$VERSION_ID")"
 case "$${lsb_dist}" in
 	fedora|centos|rhel)
 		echo "OK : $${lsb_dist} detected"
@@ -32,6 +33,7 @@ NOMAD_VERSION=${nomad_version}
 DATACENTER=${datacenter}
 OUTPUT_IP=${output_ip}
 NODE_TYPE=${node_type}
+PERSISTENT_DISK=${persistent_disk}
 
 start_services()
 {
@@ -40,11 +42,15 @@ start_services()
 		systemctl daemon-reload || true
 		systemctl reload NetworkManager || true
 		systemctl restart NetworkManager || true
-		systemctl enable dnsmasq || true
-		systemctl start dnsmasq || true
 		systemctl enable docker || true
 		systemctl start docker || true
 	fi
+
+	CHECKNET=$(docker network ls | grep backend-net)
+  if [ $? != 0 ] ; then
+		echo "Create overlay network"
+    docker network create -d overlay --subnet 10.27.0.0/16 backend-net
+  fi
 
 	echo "OK : system services enabled and started"
 }
@@ -68,8 +74,6 @@ stop_all()
 	if [ -d /run/systemd/system ] ; then
 		echo "Enable and start services"
 		systemctl daemon-reload || true
-		systemctl disable dnsmasq || true
-		systemctl stop dnsmasq || true
 		systemctl disable docker || true
 		systemctl stop docker || true
 		systemctl disable nomad || true
@@ -83,38 +87,62 @@ stop_all()
 
 install_packages()
 {
-	yum install -y -q unzip wget firewalld dnsmasq
+	yum install -y -q unzip wget firewalld lvm2
 }
 
 configure_services()
 {
-		cat > /etc/dnsmasq.d/10-consul.conf <<EOF
-		server=/consul/127.0.0.1#8600
-		server=169.254.169.254
-EOF
-
 		sed -ie s/PEERDNS=yes/PEERDNS=no/g /etc/sysconfig/network-scripts/ifcfg-eth0
-		echo 'DNS1=127.0.0.1' | tee -a /etc/sysconfig/network-scripts/ifcfg-eth0
+		echo 'DNS1=${dns1}' | tee -a /etc/sysconfig/network-scripts/ifcfg-eth0
+		echo 'DNS2=${dns2}' | tee -a /etc/sysconfig/network-scripts/ifcfg-eth0
+		echo 'DNS3=${dns3}' | tee -a /etc/sysconfig/network-scripts/ifcfg-eth0
 }
 
 install_docker()
 {
-	lsb_dist="$$(lsb_release -si | tr '[:upper:]' '[:lower:]')"
-	dist_version="$$(lsb_release -sr |cut -d. -f1)"
-
 	cat > /etc/yum.repos.d/docker.repo <<EOF
-[docker-repo]
-name=Docker Repository
-baseurl=https://yum.dockerproject.org/repo/main/$${lsb_dist}/$${dist_version}
+[docker-ce-stable]
+name=Docker CE Stable - \$basearch
+baseurl=https://download.docker.com/linux/centos/7/\$basearch/stable
 enabled=1
 gpgcheck=1
-gpgkey=https://yum.dockerproject.org/gpg
+gpgkey=https://download.docker.com/linux/centos/gpg
 EOF
 
 	echo "OK : DockerRepo created"
 
-	yum install -y -q docker-engine docker-engine-selinux
+	yum install -y -q docker-ce
 	groupadd docker
+
+	mkdir -p /etc/docker/
+
+	# If sdb disk exist, configure it as primary storage backend for docker
+	if [ -n $${PERSISTENT_DISK} ] ; then
+		echo "Configure docker lvm storage"
+		cat > /etc/docker/daemon.json <<EOF
+{
+	"cluster-store": "consul://consul.service.consul:8500",
+	"cluster-advertise": "eth0:2376",
+	"storage-driver": "devicemapper",
+	"storage-opts": [
+		"dm.directlvm_device=${persistent_disk}",
+		"dm.thinp_percent=95",
+		"dm.thinp_metapercent=1",
+		"dm.thinp_autoextend_threshold=80",
+		"dm.thinp_autoextend_percent=20",
+		"dm.directlvm_device_force=false"
+	]
+}
+EOF
+	else
+		echo "Configure docker file storage"
+		cat > /etc/docker/daemon.json <<EOF
+{
+	"cluster-store": "consul://consul.service.consul:8500",
+	"cluster-advertise": "eth0:2376"
+}
+EOF
+fi
 
 	echo "OK : Docker installed"
 }

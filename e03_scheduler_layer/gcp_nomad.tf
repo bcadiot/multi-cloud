@@ -42,6 +42,10 @@ data "template_file" "gcp_bootstrap_nomad_server" {
     consul_version = "0.9.2"
     node_type = "server"
     join = "\"retry_join\": [\"provider=gce tag_value=consul-servers\"]"
+    dns1 = "${data.terraform_remote_state.consul.gcp_consul_ips.0}"
+    dns2 = "${data.terraform_remote_state.consul.gcp_consul_ips.1}"
+    dns3 = "${data.terraform_remote_state.consul.gcp_consul_ips.2}"
+    persistent_disk = ""
   }
 }
 
@@ -90,6 +94,10 @@ data "template_file" "gcp_bootstrap_nomad_client" {
     nomad_version = "0.6.2"
     consul_version = "0.9.2"
     node_type = "client"
+    dns1 = "${data.terraform_remote_state.consul.gcp_consul_ips.0}"
+    dns2 = "${data.terraform_remote_state.consul.gcp_consul_ips.1}"
+    dns3 = "${data.terraform_remote_state.consul.gcp_consul_ips.2}"
     join = "\"retry_join\": [\"provider=gce tag_value=consul-servers\"]"
+    persistent_disk = ""
   }
 }
