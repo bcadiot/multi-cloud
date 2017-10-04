@@ -40,8 +40,15 @@ start_services()
 	if [ -d /run/systemd/system ] ; then
 		echo "Enable and start services"
 		systemctl daemon-reload || true
-		systemctl reload NetworkManager || true
-		systemctl restart NetworkManager || true
+
+		CHECKNETMODE=$(systemctl is-enabled NetworkManager)
+		if [ $? != 0 ] ; then
+			systemctl reload NetworkManager || true
+			systemctl restart NetworkManager || true
+		else
+			systemctl restart network || true
+		fi
+
 		systemctl enable docker || true
 		systemctl start docker || true
 	fi
@@ -96,6 +103,8 @@ configure_services()
 		echo 'DNS1=${dns1}' | tee -a /etc/sysconfig/network-scripts/ifcfg-eth0
 		echo 'DNS2=${dns2}' | tee -a /etc/sysconfig/network-scripts/ifcfg-eth0
 		echo 'DNS3=${dns3}' | tee -a /etc/sysconfig/network-scripts/ifcfg-eth0
+
+		echo 'supersede domain-name-servers ${dns1}, ${dns2}, ${dns3};' | tee -a /etc/dhclient.conf
 }
 
 install_docker()
