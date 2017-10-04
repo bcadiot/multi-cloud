@@ -27,8 +27,8 @@ job "storage" {
           "server",
           "http://minio-gcp-0.storage-object-minio.service.europe-west1.consul/export",
           "http://minio-gcp-1.storage-object-minio.service.europe-west1.consul/export",
-          "http://minio-gcp-0.storage-object-minio.service.us-west-2.consul/export",
-          "http://minio-gcp-1.storage-object-minio.service.us-west-2.consul/export"
+          "http://minio-aws-0.storage-object-minio.service.us-west-2.consul/export",
+          "http://minio-aws-1.storage-object-minio.service.us-west-2.consul/export"
         ]
         network_mode = "host"
         port_map = {
@@ -55,7 +55,7 @@ job "storage" {
 
         tags = [
           "minio",
-          "minio-gcp-${NOMAD_ALLOC_INDEX}"
+          "minio-aws-${NOMAD_ALLOC_INDEX}"
         ]
       }
 
