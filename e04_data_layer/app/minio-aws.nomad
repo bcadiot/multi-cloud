@@ -18,6 +18,11 @@ job "storage" {
       mode = "delay"
     }
 
+    constraint {
+      attribute = "${node.class}"
+      value     = "data"
+    }
+
     task "minio" {
       driver = "docker"
 
@@ -25,18 +30,15 @@ job "storage" {
         image = "minio/minio:RELEASE.2017-08-05T00-00-53Z"
         args = [
           "server",
-          "http://minio-gcp-0.storage-object-minio.service.europe-west1.consul/export",
-          "http://minio-gcp-1.storage-object-minio.service.europe-west1.consul/export",
-          "http://minio-aws-0.storage-object-minio.service.us-west-2.consul/export",
-          "http://minio-aws-1.storage-object-minio.service.us-west-2.consul/export"
+          "http://minio-gcp-0.storage-object-minio.service.europe-west1.consul/data",
+          "http://minio-gcp-1.storage-object-minio.service.europe-west1.consul/data",
+          "http://minio-aws-0.storage-object-minio.service.us-west-2.consul/data",
+          "http://minio-aws-1.storage-object-minio.service.us-west-2.consul/data"
         ]
         network_mode = "host"
         port_map = {
           minio = 9000
         }
-        volumes = [
-          "minio-export:/export"
-        ]
       }
 
       template {

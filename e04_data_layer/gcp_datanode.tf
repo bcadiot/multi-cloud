@@ -58,5 +58,7 @@ data "template_file" "gcp_bootstrap_nomad_client" {
     dns3 = "${data.terraform_remote_state.consul.gcp_consul_ips.2}"
     join = "\"retry_join\": [\"provider=gce tag_value=consul-servers\"]"
     persistent_disk = "/dev/sdb"
+    cloud = "gcp"
+    node_class = "data"
   }
 }
