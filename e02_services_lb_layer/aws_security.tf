@@ -44,6 +44,22 @@ resource "aws_security_group" "consul_servers" {
     cidr_blocks = ["0.0.0.0/0"]
   }
 
+  # DNS Interface TCP
+  ingress {
+    protocol  = "tcp"
+    from_port = 53
+    to_port   = 53
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  # DNS Interface UDP
+  ingress {
+    protocol  = "udp"
+    from_port = 53
+    to_port   = 53
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
   egress {
     from_port   = 0
     to_port     = 0
