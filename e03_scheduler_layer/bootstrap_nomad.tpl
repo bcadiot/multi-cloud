@@ -33,22 +33,12 @@ NOMAD_VERSION=${nomad_version}
 DATACENTER=${datacenter}
 OUTPUT_IP=${output_ip}
 NODE_TYPE=${node_type}
-PERSISTENT_DISK=${persistent_disk}
 
 start_services()
 {
 	if [ -d /run/systemd/system ] ; then
 		echo "Enable and start services"
 		systemctl daemon-reload || true
-
-		CHECKNETMODE=$(systemctl is-enabled NetworkManager)
-		if [ $? != 0 ] ; then
-			systemctl reload NetworkManager || true
-			systemctl restart NetworkManager || true
-		else
-			systemctl restart network || true
-		fi
-
 		systemctl enable docker || true
 		systemctl start docker || true
 	fi
@@ -100,11 +90,22 @@ install_packages()
 configure_services()
 {
 		sed -ie s/PEERDNS=yes/PEERDNS=no/g /etc/sysconfig/network-scripts/ifcfg-eth0
-		echo 'DNS1=${dns1}' | tee -a /etc/sysconfig/network-scripts/ifcfg-eth0
-		echo 'DNS2=${dns2}' | tee -a /etc/sysconfig/network-scripts/ifcfg-eth0
-		echo 'DNS3=${dns3}' | tee -a /etc/sysconfig/network-scripts/ifcfg-eth0
 
-		echo 'supersede domain-name-servers ${dns1}, ${dns2}, ${dns3};' | tee -a /etc/dhclient.conf
+		if [ ${cloud} == "gcp" ] ; then
+			# DHCLIENT_PATH=/etc/dhclient.conf
+			echo 'DNS1=${dns1}' | tee -a /etc/sysconfig/network-scripts/ifcfg-eth0
+			echo 'DNS2=${dns2}' | tee -a /etc/sysconfig/network-scripts/ifcfg-eth0
+			echo 'DNS3=${dns3}' | tee -a /etc/sysconfig/network-scripts/ifcfg-eth0
+			# echo 'supersede domain-name-servers ${dns1}, ${dns2}, ${dns3};' | tee -a $${DHCLIENT_PATH}
+			systemctl reload NetworkManager || true
+			systemctl restart NetworkManager || true
+		fi
+
+		if [ ${cloud} == "aws" ] ; then
+			# DHCLIENT_PATH=/etc/dhcp/dhclient.conf
+			echo 'supersede domain-name-servers ${dns1}, ${dns2}, ${dns3};' | tee -a /etc/dhcp/dhclient.conf
+			systemctl restart network || true
+		fi
 }
 
 install_docker()
@@ -126,7 +127,15 @@ EOF
 	mkdir -p /etc/docker/
 
 	# If sdb disk exist, configure it as primary storage backend for docker
-	if [ -n $${PERSISTENT_DISK} ] ; then
+	if [[ "x${persistent_disk}" == "x" ]] ; then
+		echo "Configure docker file storage"
+		cat > /etc/docker/daemon.json <<EOF
+{
+	"cluster-store": "consul://consul.service.consul:8500",
+	"cluster-advertise": "eth0:2376"
+}
+EOF
+	else
 		echo "Configure docker lvm storage"
 		cat > /etc/docker/daemon.json <<EOF
 {
@@ -141,14 +150,6 @@ EOF
 		"dm.thinp_autoextend_percent=20",
 		"dm.directlvm_device_force=false"
 	]
-}
-EOF
-	else
-		echo "Configure docker file storage"
-		cat > /etc/docker/daemon.json <<EOF
-{
-	"cluster-store": "consul://consul.service.consul:8500",
-	"cluster-advertise": "eth0:2376"
 }
 EOF
 fi
@@ -263,6 +264,7 @@ else
   bind_addr = "$${OUTPUT_IP}"
 
   client {
+			node_class = "${node_class}"
       enabled = true
   }
 EOF

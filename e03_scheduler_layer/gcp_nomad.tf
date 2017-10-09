@@ -46,6 +46,8 @@ data "template_file" "gcp_bootstrap_nomad_server" {
     dns2 = "${data.terraform_remote_state.consul.gcp_consul_ips.1}"
     dns3 = "${data.terraform_remote_state.consul.gcp_consul_ips.2}"
     persistent_disk = ""
+    cloud = "gcp"
+    node_class = "server"
   }
 }
 
@@ -99,5 +101,7 @@ data "template_file" "gcp_bootstrap_nomad_client" {
     dns3 = "${data.terraform_remote_state.consul.gcp_consul_ips.2}"
     join = "\"retry_join\": [\"provider=gce tag_value=consul-servers\"]"
     persistent_disk = ""
+    cloud = "gcp"
+    node_class = "app"
   }
 }

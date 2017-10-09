@@ -33,6 +33,8 @@ data "template_file" "aws_bootstrap_nomad_servers" {
     dns2 = "${data.terraform_remote_state.consul.aws_consul_ips.1}"
     dns3 = "${data.terraform_remote_state.consul.aws_consul_ips.2}"
     persistent_disk = ""
+    cloud = "aws"
+    node_class = "server"
   }
 }
 
@@ -73,5 +75,7 @@ data "template_file" "aws_bootstrap_nomad_clients" {
     dns2 = "${data.terraform_remote_state.consul.aws_consul_ips.1}"
     dns3 = "${data.terraform_remote_state.consul.aws_consul_ips.2}"
     persistent_disk = ""
+    cloud = "aws"
+    node_class = "app"
   }
 }
