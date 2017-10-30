@@ -57,7 +57,9 @@ job "storage" {
 
         tags = [
           "minio",
-          "minio-gcp-${NOMAD_ALLOC_INDEX}"
+          "minio-gcp-${NOMAD_ALLOC_INDEX}",
+          "traefik.frontend.rule=Host:minio-test.example.com",
+          "traefik.tags=exposed"
         ]
       }
 
