@@ -1,6 +1,6 @@
 job "app" {
-  region = "us"
-  datacenters = ["us-west-2"]
+  region = "europe"
+  datacenters = ["europe-west1"]
 
   type = "service"
 
@@ -36,7 +36,7 @@ job "app" {
       env {
         MINIO_EXTERNAL_HOST = "minio-test.example.com"
         MINIO_EXTERNAL_PORT = 80
-        MINIO_HOST = "storage-object-minio.service.consul"
+        MINIO_HOST = "storage-object-minio.query.consul"
         MINIO_PORT = 9000
         MINIO_ACCESS_KEY = "AKIAIOSFODNN7EXAMPLE"
         MINIO_SECRET_KEY = "wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY"
