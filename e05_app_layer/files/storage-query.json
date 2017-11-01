@@ -1,0 +1,9 @@
+{
+  "Name": "storage-object-minio",
+  "Service": {
+    "Service": "storage-object-minio",
+    "Failover": {
+      "NearestN": 1
+    }
+  }
+}
