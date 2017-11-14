@@ -1,0 +1,19 @@
+<template name="lbHealth">
+  <div class="row">
+    <fieldset>
+      <legend>Local LB</legend>
+      <div class="col-md-3">
+        <button type="button" class="btn {{getPing "server-aws-traefik-1.node.us-west-2.consul"}}">Node 1 AWS</button>
+      </div>
+      <div class="col-md-3">
+        <button type="button" class="btn {{getPing "server-aws-traefik-2.node.us-west-2.consul"}}">Node 2 AWS</button>
+      </div>
+      <div class="col-md-3">
+        <button type="button" class="btn {{getPing "server-gcp-traefik-1.node.europe-west1.consul"}}">Node 1 GCP</button>
+      </div>
+      <div class="col-md-3">
+        <button type="button" class="btn {{getPing "server-gcp-traefik-2.node.europe-west1.consul"}}">Node 2 GCP</button>
+      </div>
+    </fieldset>
+  </div>
+</template>

@@ -1,0 +1,13 @@
+<template name="globalHealth">
+  <div class="row">
+    <fieldset>
+      <legend>Global</legend>
+      <div class="col-md-6">
+        <button type="button" class="btn {{getHTTPCode "http://app-test.cadiot.fr"}}">App</button>
+      </div>
+      <div class="col-md-6">
+        <button type="button" class="btn {{getHTTPCode "http://minio-test.cadiot.fr"}}">Storage</button>
+      </div>
+    </fieldset>
+  </div>
+</template>

@@ -1,0 +1,29 @@
+<body>
+  {{> navBar}}
+  <div class="container">
+    <h1 class="text-center">
+      Multi-cloud Health
+    </h1>
+      <div class="col-md-12 text-center">
+        <div class="row">
+          <h2>
+            Applications
+          </h2>
+        </div>
+        {{> globalHealth}}
+        {{> servicesHealth}}
+        <div class="row">
+          <h2>
+            Infrastructure
+          </h2>
+        </div>
+        {{> lbHealth}}
+        {{> appHealth}}
+        {{> storageHealth}}
+        {{> storageNodesHealth}}
+        {{> nomadAppHealth}}
+        {{> nomadServersHealth}}
+        {{> consulServersHealth}}
+      </div>
+  </div>
+</body>
