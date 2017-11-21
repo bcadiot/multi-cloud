@@ -32,12 +32,13 @@ resource "google_compute_instance" "traefik" {
       ]
   }
 
-  metadata_startup_script = "${data.template_file.gcp_traefik_bootstrap.rendered}"
+  metadata_startup_script = "${element(data.template_file.gcp_traefik_bootstrap.*.rendered, count.index)}"
 
   depends_on = ["google_compute_instance.consul"]
 }
 
 data "template_file" "gcp_traefik_bootstrap" {
+  count = 2
   template = "${file("bootstrap_traefik.tpl")}"
 
   vars {
@@ -48,5 +49,6 @@ data "template_file" "gcp_traefik_bootstrap" {
     consul_version = "0.9.2"
     traefik_version = "1.3.2"
     join = "\"retry_join\": [\"provider=gce tag_value=consul-servers\"]"
+    node_name = "server-gcp-traefik-${count.index + 1}"
   }
 }

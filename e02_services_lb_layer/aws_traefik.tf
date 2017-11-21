@@ -12,7 +12,7 @@ resource "aws_instance" "traefik" {
   subnet_id = "${element(data.terraform_remote_state.network.aws_pub_subnet, count.index + 1)}"
   associate_public_ip_address = true
 
-  user_data = "${data.template_file.aws_traefik_bootstrap.rendered}"
+  user_data = "${element(data.template_file.aws_traefik_bootstrap.*.rendered, count.index)}"
 
   tags {
     Name = "server-aws-traefik-${count.index + 1}"
@@ -23,6 +23,7 @@ resource "aws_instance" "traefik" {
 }
 
 data "template_file" "aws_traefik_bootstrap" {
+  count = 2
   template = "${file("bootstrap_traefik.tpl")}"
 
   vars {
@@ -33,5 +34,6 @@ data "template_file" "aws_traefik_bootstrap" {
     consul_version = "0.9.2"
     traefik_version = "1.3.2"
     join = "\"retry_join\": [\"provider=aws tag_key=Consul tag_value=server\"]"
+    node_name = "server-aws-traefik-${count.index + 1}"
   }
 }

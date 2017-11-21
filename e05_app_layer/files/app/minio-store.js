@@ -45,7 +45,7 @@ app.get('/', function(req, res){
   var assets = [];
   var objectsStream = minioClient.listObjects(minioBucket, '', true)
   objectsStream.on('data', function(obj) {
-    console.log(obj);
+    // console.log(obj);
     // Lets construct the URL with our object name.
     var publicUrl = minioClient.protocol + '//' + minio_external_host + ':' + minio_external_port + '/' + minioBucket + '/' + obj.name
     assets.push(publicUrl);
@@ -54,7 +54,7 @@ app.get('/', function(req, res){
     console.log(e);
   });
   objectsStream.on('end', function(e) {
-    console.log(assets);
+    // console.log(assets);
     // Pass our assets array to our home.handlebars template.
     res.render('home', { url: assets });
   });

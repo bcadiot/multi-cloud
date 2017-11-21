@@ -10,7 +10,7 @@ resource "aws_instance" "consul" {
   subnet_id = "${element(data.terraform_remote_state.network.aws_priv_subnet, count.index)}"
   associate_public_ip_address = false
 
-  user_data = "${data.template_file.aws_bootstrap_consul.rendered}"
+  user_data = "${element(data.template_file.aws_bootstrap_consul.*.rendered, count.index)}"
 
   tags {
     Name = "server-aws-consul-${count.index + 1}"
@@ -21,6 +21,7 @@ resource "aws_instance" "consul" {
 }
 
 data "template_file" "aws_bootstrap_consul" {
+  count = 3
   template = "${file("bootstrap_consul.tpl")}"
 
   vars {
@@ -29,5 +30,6 @@ data "template_file" "aws_bootstrap_consul" {
     output_ip = "$(curl http://169.254.169.254/latest/meta-data/local-ipv4)"
     consul_version = "0.9.2"
     join = "\"retry_join\": [\"provider=aws tag_key=Consul tag_value=server\"], \"retry_join_wan\": [${join(", ", formatlist("\"%s\"", google_compute_instance.consul.*.network_interface.0.address))}]"
+    node_name = "server-aws-consul-${count.index + 1}"
   }
 }

@@ -9,7 +9,7 @@ resource "aws_instance" "nomad_servers" {
   subnet_id = "${element(data.terraform_remote_state.network.aws_priv_subnet, count.index)}"
   associate_public_ip_address = false
 
-  user_data = "${data.template_file.aws_bootstrap_nomad_servers.rendered}"
+  user_data = "${element(data.template_file.aws_bootstrap_nomad_servers.*.rendered, count.index)}"
 
   tags {
     Name = "server-aws-nomad-server-${count.index + 1}"
@@ -18,6 +18,7 @@ resource "aws_instance" "nomad_servers" {
 }
 
 data "template_file" "aws_bootstrap_nomad_servers" {
+  count = 3
   template = "${file("bootstrap_nomad.tpl")}"
 
   vars {
@@ -35,6 +36,7 @@ data "template_file" "aws_bootstrap_nomad_servers" {
     persistent_disk = ""
     cloud = "aws"
     node_class = "server"
+    node_name = "server-aws-nomad-server-${count.index + 1}"
   }
 }
 
@@ -49,7 +51,7 @@ resource "aws_instance" "nomad_clients" {
   subnet_id = "${element(data.terraform_remote_state.network.aws_priv_subnet, count.index)}"
   associate_public_ip_address = false
 
-  user_data = "${data.template_file.aws_bootstrap_nomad_clients.rendered}"
+  user_data = "${element(data.template_file.aws_bootstrap_nomad_clients.*.rendered, count.index)}"
 
   tags {
     Name = "server-aws-nomad-client-${count.index + 1}"
@@ -60,6 +62,7 @@ resource "aws_instance" "nomad_clients" {
 }
 
 data "template_file" "aws_bootstrap_nomad_clients" {
+  count = 3
   template = "${file("bootstrap_nomad.tpl")}"
 
   vars {
@@ -77,5 +80,6 @@ data "template_file" "aws_bootstrap_nomad_clients" {
     persistent_disk = ""
     cloud = "aws"
     node_class = "app"
+    node_name = "server-aws-nomad-client-${count.index + 1}"
   }
 }

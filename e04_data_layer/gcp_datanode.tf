@@ -31,7 +31,7 @@ resource "google_compute_instance" "datanode" {
       ]
   }
 
-  metadata_startup_script = "${data.template_file.gcp_bootstrap_nomad_client.rendered}"
+  metadata_startup_script = "${element(data.template_file.gcp_bootstrap_nomad_client.*.rendered, count.index)}"
 }
 
 resource "google_compute_disk" "datanode-disks" {
@@ -43,6 +43,7 @@ resource "google_compute_disk" "datanode-disks" {
 }
 
 data "template_file" "gcp_bootstrap_nomad_client" {
+  count = 2
   template = "${file("../e03_scheduler_layer/bootstrap_nomad.tpl")}"
 
   vars {
@@ -60,5 +61,6 @@ data "template_file" "gcp_bootstrap_nomad_client" {
     persistent_disk = "/dev/sdb"
     cloud = "gcp"
     node_class = "data"
+    node_name = "server-gcp-datanode-clients-${count.index + 1}"
   }
 }

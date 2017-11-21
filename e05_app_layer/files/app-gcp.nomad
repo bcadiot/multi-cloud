@@ -27,7 +27,7 @@ job "app" {
       driver = "docker"
 
       config {
-        image = "bcadiot/minio-js-store-app:1.1"
+        image = "bcadiot/minio-js-store-app:1.2"
         port_map = {
           app = 3000
         }

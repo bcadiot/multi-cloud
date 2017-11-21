@@ -27,10 +27,11 @@ resource "google_compute_instance" "nomad_servers" {
       ]
   }
 
-  metadata_startup_script = "${data.template_file.gcp_bootstrap_nomad_server.rendered}"
+  metadata_startup_script = "${element(data.template_file.gcp_bootstrap_nomad_server.*.rendered, count.index)}"
 }
 
 data "template_file" "gcp_bootstrap_nomad_server" {
+  count = 3
   template = "${file("bootstrap_nomad.tpl")}"
 
   vars {
@@ -48,6 +49,7 @@ data "template_file" "gcp_bootstrap_nomad_server" {
     persistent_disk = ""
     cloud = "gcp"
     node_class = "server"
+    node_name = "server-gcp-nomad-servers-${count.index + 1}"
   }
 }
 
@@ -80,12 +82,13 @@ resource "google_compute_instance" "nomad_clients" {
       ]
   }
 
-  metadata_startup_script = "${data.template_file.gcp_bootstrap_nomad_client.rendered}"
+  metadata_startup_script = "${element(data.template_file.gcp_bootstrap_nomad_client.*.rendered, count.index)}"
 
   depends_on = ["google_compute_instance.nomad_servers"]
 }
 
 data "template_file" "gcp_bootstrap_nomad_client" {
+  count = 3
   template = "${file("bootstrap_nomad.tpl")}"
 
   vars {
@@ -103,5 +106,6 @@ data "template_file" "gcp_bootstrap_nomad_client" {
     persistent_disk = ""
     cloud = "gcp"
     node_class = "app"
+    node_name = "server-gcp-nomad-clients-${count.index + 1}"
   }
 }
