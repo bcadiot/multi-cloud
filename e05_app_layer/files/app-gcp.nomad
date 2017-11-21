@@ -27,7 +27,7 @@ job "app" {
       driver = "docker"
 
       config {
-        image = "bcadiot/minio-js-store-app:1.1"
+        image = "bcadiot/minio-js-store-app:1.2"
         port_map = {
           app = 3000
         }
@@ -45,6 +45,8 @@ job "app" {
       service {
         port = "app"
         tags = [
+          "app",
+          "app-gcp-${NOMAD_ALLOC_INDEX}",
           "traefik.frontend.rule=Host:app-test.example.com",
           "traefik.tags=exposed"
         ]
