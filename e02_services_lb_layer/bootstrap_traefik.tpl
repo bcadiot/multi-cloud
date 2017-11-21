@@ -132,6 +132,7 @@ configure_consul()
     "data_dir": "/var/consul",
     "log_level": "INFO",
     "enable_syslog": true,
+		"node_name": "${node_name}",
 		${join},
 		"bind_addr": "$${OUTPUT_IP}"
 }

@@ -27,10 +27,11 @@ resource "google_compute_instance" "consul" {
       ]
   }
 
-  metadata_startup_script = "${data.template_file.gcp_bootstrap_consul.rendered}"
+  metadata_startup_script = "${element(data.template_file.gcp_bootstrap_consul.*.rendered, count.index)}"
 }
 
 data "template_file" "gcp_bootstrap_consul" {
+  count = 3
   template = "${file("bootstrap_consul.tpl")}"
 
   vars {
@@ -40,5 +41,6 @@ data "template_file" "gcp_bootstrap_consul" {
     output_ip = "$(curl http://metadata.google.internal/computeMetadata/v1/instance/network-interfaces/0/ip -H \"Metadata-Flavor: Google\")"
     consul_version = "0.9.2"
     join = "\"retry_join\": [\"provider=gce tag_value=consul-servers\"]"
+    node_name = "server-gcp-consul-${count.index + 1}"
   }
 }

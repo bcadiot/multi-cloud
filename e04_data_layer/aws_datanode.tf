@@ -9,7 +9,7 @@ resource "aws_instance" "datanode" {
   subnet_id = "${element(data.terraform_remote_state.network.aws_priv_subnet, count.index)}"
   associate_public_ip_address = false
 
-  user_data = "${data.template_file.aws_bootstrap_nomad_clients.rendered}"
+  user_data = "${element(data.template_file.aws_bootstrap_nomad_clients.*.rendered, count.index)}"
 
   ebs_block_device {
     device_name = "/dev/xvdf"
@@ -23,6 +23,7 @@ resource "aws_instance" "datanode" {
 }
 
 data "template_file" "aws_bootstrap_nomad_clients" {
+  count = 2
   template = "${file("../e03_scheduler_layer/bootstrap_nomad.tpl")}"
 
   vars {
@@ -40,5 +41,6 @@ data "template_file" "aws_bootstrap_nomad_clients" {
     persistent_disk = "/dev/xvdf"
     cloud = "aws"
     node_class = "data"
+    node_name = "server-aws-datanode-${count.index + 1}"
   }
 }

@@ -129,6 +129,7 @@ configure_consul()
     "enable_syslog": true,
 		${join},
 		"bind_addr": "$${OUTPUT_IP}",
+		"node_name": "${node_name}",
 		"client_addr": "0.0.0.0"
 }
 EOF
