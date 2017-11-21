@@ -45,6 +45,8 @@ job "app" {
       service {
         port = "app"
         tags = [
+          "app",
+          "app-gcp-${NOMAD_ALLOC_INDEX}",
           "traefik.frontend.rule=Host:app-test.example.com",
           "traefik.tags=exposed"
         ]
