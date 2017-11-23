@@ -9,3 +9,10 @@ Les variables dans le fichier `variables.tf` peuvent être ajustées. Ensuite il
 $ terraform init
 $ terraform apply
 ```
+
+Pour le déploiement des jobs Nomad depuis un des serveurs de l'infra :
+```shell
+export NOMAD_ADDR=http://nomad.service.consul:4646
+nomad run minio-aws.nomad
+nomad run minio-gcp.nomad
+```
