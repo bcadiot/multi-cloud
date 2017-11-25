@@ -3,7 +3,9 @@
 export TF_VAR_gcp_instance_type='n1-standard-1'
 export TF_VAR_aws_instance_type='t2-small'
 
-cd e05_app_layer/
+cd kraken/
+terraform destroy -force
+cd ../e05_app_layer/
 terraform destroy -force
 cd ../e04_data_layer/
 terraform destroy -force

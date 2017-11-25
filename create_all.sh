@@ -13,3 +13,5 @@ cd ../e04_data_layer/
 terraform apply
 cd ../e05_app_layer/
 terraform apply
+cd ../kraken/
+terraform apply
