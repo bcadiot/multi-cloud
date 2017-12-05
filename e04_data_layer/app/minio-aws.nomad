@@ -58,7 +58,7 @@ job "storage" {
         tags = [
           "minio",
           "minio-aws-${NOMAD_ALLOC_INDEX}",
-          "traefik.frontend.rule=Host:minio-test.example.com",
+          "traefik.frontend.rule=Host:minio-test.cadiot.fr",
           "traefik.tags=exposed"
         ]
       }

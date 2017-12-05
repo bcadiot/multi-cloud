@@ -27,14 +27,14 @@ job "app" {
       driver = "docker"
 
       config {
-        image = "bcadiot/minio-js-store-app:1.2"
+        image = "bcadiot/minio-js-store-app:1.3"
         port_map = {
-          app = 3000
+          app = 80
         }
       }
 
       env {
-        MINIO_EXTERNAL_HOST = "minio-test.example.com"
+        MINIO_EXTERNAL_HOST = "minio-test.cadiot.fr"
         MINIO_EXTERNAL_PORT = 80
         MINIO_HOST = "storage-object-minio.query.consul"
         MINIO_PORT = 9000
@@ -47,7 +47,7 @@ job "app" {
         tags = [
           "app",
           "app-gcp-${NOMAD_ALLOC_INDEX}",
-          "traefik.frontend.rule=Host:app-test.example.com",
+          "traefik.frontend.rule=Host:app-test.cadiot.fr",
           "traefik.tags=exposed"
         ]
       }

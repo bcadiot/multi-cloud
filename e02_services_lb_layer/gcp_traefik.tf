@@ -47,7 +47,7 @@ data "template_file" "gcp_traefik_bootstrap" {
     datacenter = "$(echo $${ZONE} | cut -d\"-\" -f1)-$(echo $${ZONE} | cut -d\"-\" -f2)"
     output_ip = "$(curl http://metadata.google.internal/computeMetadata/v1/instance/network-interfaces/0/ip -H \"Metadata-Flavor: Google\")"
     consul_version = "0.9.2"
-    traefik_version = "1.3.2"
+    traefik_version = "1.4.4"
     join = "\"retry_join\": [\"provider=gce tag_value=consul-servers\"]"
     node_name = "server-gcp-traefik-${count.index + 1}"
   }

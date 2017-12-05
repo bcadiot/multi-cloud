@@ -41,8 +41,9 @@ resource "fastly_service_v1" "app" {
   healthcheck {
     method         = "GET"
     host           = "${var.app-subdomain}.${var.domain}"
-    check_interval = "500"
-    path           = "/"
+    check_interval = "5000"
+    timeout = "5000"
+    path           = "/img/favicon.png"
     name           = "apphealth"
   }
 

@@ -41,7 +41,8 @@ resource "fastly_service_v1" "minio" {
   healthcheck {
     method         = "GET"
     host           = "${var.minio-subdomain}.${var.domain}"
-    check_interval = "500"
+    check_interval = "5000"
+    timeout        = "5000"
     path           = "/minio/"
     name           = "miniohealth"
   }

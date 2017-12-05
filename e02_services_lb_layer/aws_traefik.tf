@@ -32,7 +32,7 @@ data "template_file" "aws_traefik_bootstrap" {
     datacenter = "$(echo $${ZONE} | sed 's/.$//')"
     output_ip = "$(curl http://169.254.169.254/latest/meta-data/local-ipv4)"
     consul_version = "0.9.2"
-    traefik_version = "1.3.2"
+    traefik_version = "1.4.4"
     join = "\"retry_join\": [\"provider=aws tag_key=Consul tag_value=server\"]"
     node_name = "server-aws-traefik-${count.index + 1}"
   }
