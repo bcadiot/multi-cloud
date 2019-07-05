@@ -17,3 +17,7 @@ variable "region_gcp" {
 variable "gcp_cidr" {
   default = "172.27.3.0/24"
 }
+
+variable "bgp_gcp" {
+  default = "65273"
+}

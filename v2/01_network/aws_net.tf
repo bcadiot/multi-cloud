@@ -19,10 +19,30 @@ resource "aws_internet_gateway" "gw" {
   vpc_id = aws_vpc.main.id
 }
 
-// # Routing specs
+# VPN specs
+
+resource "aws_vpn_gateway" "vpn_gateway" {
+  vpc_id = aws_vpc.main.id
+}
+
+resource "aws_customer_gateway" "customer_gateway" {
+  bgp_asn    = google_compute_router.main.bgp[0].asn
+  ip_address = google_compute_address.vpn_static_ip.address
+  type       = "ipsec.1"
+}
+
+resource "aws_vpn_connection" "main" {
+  vpn_gateway_id      = aws_vpn_gateway.vpn_gateway.id
+  customer_gateway_id = aws_customer_gateway.customer_gateway.id
+  type                = "ipsec.1"
+}
+
+# Routing specs
 
 resource "aws_route_table" "main" {
   vpc_id = aws_vpc.main.id
+
+  propagating_vgws = [aws_vpn_gateway.vpn_gateway.id]
 
   route {
     cidr_block = "0.0.0.0/0"
