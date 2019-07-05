@@ -25,15 +25,27 @@ resource "aws_vpn_gateway" "vpn_gateway" {
   vpc_id = aws_vpc.main.id
 }
 
-resource "aws_customer_gateway" "customer_gateway" {
+resource "aws_customer_gateway" "customer_gateway_1" {
   bgp_asn    = google_compute_router.main.bgp[0].asn
-  ip_address = google_compute_address.vpn_static_ip.address
+  ip_address = google_compute_ha_vpn_gateway.target_gateway.vpn_interfaces[0].ip_address
   type       = "ipsec.1"
 }
 
-resource "aws_vpn_connection" "main" {
+resource "aws_customer_gateway" "customer_gateway_2" {
+  bgp_asn    = google_compute_router.main.bgp[0].asn
+  ip_address = google_compute_ha_vpn_gateway.target_gateway.vpn_interfaces[1].ip_address
+  type       = "ipsec.1"
+}
+
+resource "aws_vpn_connection" "cx_1" {
   vpn_gateway_id      = aws_vpn_gateway.vpn_gateway.id
-  customer_gateway_id = aws_customer_gateway.customer_gateway.id
+  customer_gateway_id = aws_customer_gateway.customer_gateway_1.id
+  type                = "ipsec.1"
+}
+
+resource "aws_vpn_connection" "cx_2" {
+  vpn_gateway_id      = aws_vpn_gateway.vpn_gateway.id
+  customer_gateway_id = aws_customer_gateway.customer_gateway_2.id
   type                = "ipsec.1"
 }
 
