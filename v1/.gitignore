@@ -1,0 +1,4 @@
+*/terraform.tfstate*
+*/tmp*.md
+*/.terraform
+kraken/*.tgz

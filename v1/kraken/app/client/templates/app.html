@@ -1,0 +1,25 @@
+<template name="appHealth">
+  <fieldset>
+    <legend>App</legend>
+    <div class="row">
+      <div class="col-md-2">
+        <button type="button" class="btn {{getPing "app-aws-0.app-front-player.service.us-west-2.consul"}}">Node 1 AWS</button>
+      </div>
+      <div class="col-md-2">
+        <button type="button" class="btn {{getPing "app-aws-1.app-front-player.service.us-west-2.consul"}}">Node 2 AWS</button>
+      </div>
+      <div class="col-md-2">
+        <button type="button" class="btn {{getPing "app-aws-2.app-front-player.service.us-west-2.consul"}}">Node 3 AWS</button>
+      </div>
+      <div class="col-md-2">
+        <button type="button" class="btn {{getPing "app-gcp-0.app-front-player.service.europe-west1.consul"}}">Node 1 GCP</button>
+      </div>
+      <div class="col-md-2">
+        <button type="button" class="btn {{getPing "app-gcp-1.app-front-player.service.europe-west1.consul"}}">Node 2 GCP</button>
+      </div>
+      <div class="col-md-2">
+        <button type="button" class="btn {{getPing "app-gcp-2.app-front-player.service.europe-west1.consul"}}">Node 3 GCP</button>
+      </div>
+    </div>
+  </fieldset>
+</template>

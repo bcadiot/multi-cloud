@@ -1,0 +1,19 @@
+<template name="storageHealth">
+  <div class="row">
+    <fieldset>
+      <legend>Minio Storage</legend>
+      <div class="col-md-3">
+        <button type="button" class="btn {{getPing "minio-aws-0.storage-object-minio.service.us-west-2.consul"}}">Node 1 AWS</button>
+      </div>
+      <div class="col-md-3">
+        <button type="button" class="btn {{getPing "minio-aws-1.storage-object-minio.service.us-west-2.consul"}}">Node 2 AWS</button>
+      </div>
+      <div class="col-md-3">
+        <button type="button" class="btn {{getPing "minio-gcp-0.storage-object-minio.service.europe-west1.consul"}}">Node 1 GCP</button>
+      </div>
+      <div class="col-md-3">
+        <button type="button" class="btn {{getPing "minio-gcp-1.storage-object-minio.service.europe-west1.consul"}}">Node 2 GCP</button>
+      </div>
+    </fieldset>
+  </div>
+</template>

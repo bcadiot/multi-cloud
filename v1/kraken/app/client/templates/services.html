@@ -1,0 +1,33 @@
+<template name="servicesHealth">
+  <fieldset>
+    <legend>Internal Services list</legend>
+    <div class="row">
+      <div class="col-md-3">
+        <button type="button" class="btn {{getPing "storage-object-minio.service.us-west-2.consul"}}">Storage AWS</button>
+      </div>
+      <div class="col-md-3">
+        <button type="button" class="btn {{getPing "app-front-player.service.us-west-2.consul"}}">App AWS</button>
+      </div>
+      <div class="col-md-3">
+        <button type="button" class="btn {{getPing "storage-object-minio.service.europe-west1.consul"}}">Storage GCP</button>
+      </div>
+      <div class="col-md-3">
+        <button type="button" class="btn {{getPing "app-front-player.service.europe-west1.consul"}}">App GCP</button>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-md-3">
+        <button type="button" class="btn {{getPing "nomad.service.us-west-2.consul"}}">Nomad AWS</button>
+      </div>
+      <div class="col-md-3">
+        <button type="button" class="btn {{getPing "consul.service.us-west-2.consul"}}">Consul AWS</button>
+      </div>
+      <div class="col-md-3">
+        <button type="button" class="btn {{getPing "nomad.service.europe-west1.consul"}}">Nomad GCP</button>
+      </div>
+      <div class="col-md-3">
+        <button type="button" class="btn {{getPing "consul.service.europe-west1.consul"}}">Consul GCP</button>
+      </div>
+    </div>
+  </fieldset>
+</template>
